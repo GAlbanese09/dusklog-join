@@ -1,10 +1,8 @@
-export const onRequest: PagesFunction = async (context) => {
-  // Handle preflight (shouldn't be needed since same-origin, but just in case)
+export async function onRequest(context) {
   if (context.request.method === 'OPTIONS') {
     return new Response(null, { status: 204 });
   }
 
-  // Only allow POST
   if (context.request.method !== 'POST') {
     return new Response(JSON.stringify({ error: 'Method not allowed' }), {
       status: 405,
@@ -12,7 +10,6 @@ export const onRequest: PagesFunction = async (context) => {
     });
   }
 
-  // Forward to the Dusklog Worker
   const workerUrl = 'https://dusklog.nicertatscru.workers.dev/api/auth/request-access';
 
   try {
@@ -34,4 +31,4 @@ export const onRequest: PagesFunction = async (context) => {
       headers: { 'Content-Type': 'application/json' },
     });
   }
-};
+}
