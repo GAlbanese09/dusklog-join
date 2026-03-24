@@ -1,15 +1,4 @@
-export async function onRequest(context) {
-  if (context.request.method === 'OPTIONS') {
-    return new Response(null, { status: 204 });
-  }
-
-  if (context.request.method !== 'POST') {
-    return new Response(JSON.stringify({ error: 'Method not allowed' }), {
-      status: 405,
-      headers: { 'Content-Type': 'application/json' },
-    });
-  }
-
+async function handlePost(context) {
   const workerUrl = 'https://dusklog.nicertatscru.workers.dev/api/auth/request-access';
 
   try {
@@ -31,4 +20,26 @@ export async function onRequest(context) {
       headers: { 'Content-Type': 'application/json' },
     });
   }
+}
+
+// Explicit method exports — Cloudflare Pages Functions requires these
+export async function onRequestPost(context) {
+  return handlePost(context);
+}
+
+export async function onRequestOptions(context) {
+  return new Response(null, { status: 204 });
+}
+
+export async function onRequest(context) {
+  if (context.request.method === 'POST') {
+    return handlePost(context);
+  }
+  if (context.request.method === 'OPTIONS') {
+    return new Response(null, { status: 204 });
+  }
+  return new Response(JSON.stringify({ error: 'Method not allowed' }), {
+    status: 405,
+    headers: { 'Content-Type': 'application/json' },
+  });
 }
