@@ -1,19 +1,21 @@
 export async function onRequestPost(context) {
+  const workerUrl = 'https://dusklog.nicertatscru.workers.dev/api/auth/request-access';
+
   try {
-    const body = await context.request.json();
-    return new Response(JSON.stringify({
-      success: true,
-      message: 'Request received',
-      received: body
-    }), {
-      status: 200,
+    const body = await context.request.text();
+    const response = await fetch(workerUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: body,
+    });
+
+    const data = await response.text();
+    return new Response(data, {
+      status: response.status,
       headers: { 'Content-Type': 'application/json' },
     });
   } catch (err) {
-    return new Response(JSON.stringify({
-      error: 'Function error',
-      detail: err.message
-    }), {
+    return new Response(JSON.stringify({ error: 'Failed to submit request' }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' },
     });
@@ -24,7 +26,7 @@ export async function onRequestOptions() {
   return new Response(null, { status: 204 });
 }
 
-export async function onRequest(context) {
+export async function onRequest() {
   return new Response(JSON.stringify({ error: 'Method not allowed' }), {
     status: 405,
     headers: { 'Content-Type': 'application/json' },
